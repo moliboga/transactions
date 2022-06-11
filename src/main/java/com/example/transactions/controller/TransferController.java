@@ -1,18 +1,21 @@
 package com.example.transactions.controller;
 
+import com.example.transactions.dto.NewProduct;
 import com.example.transactions.model.Log;
+import com.example.transactions.dto.TransferInfo;
 import com.example.transactions.model.product.KyivProduct;
-import com.example.transactions.model.TransferInfo;
 import com.example.transactions.model.product.LvivProduct;
 import com.example.transactions.service.LogService;
 import com.example.transactions.service.warehouse.KyivService;
 import com.example.transactions.service.warehouse.LvivService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RestController("/api/transfer")
+@RestController
+@RequestMapping("/api/transfer")
 public class TransferController {
     private final KyivService kyivService;
     private final LvivService lvivService;
@@ -69,7 +72,7 @@ public class TransferController {
     }
 
     @PutMapping()
-    public TransferInfo transferFromLvivToKyiv(@RequestBody TransferInfo transferInfo){
+    public TransferInfo transferFromLvivToKyiv(@RequestBody TransferInfo transferInfo) {
         String from = transferInfo.getFrom();
         String to = transferInfo.getTo();
         transferInfo.getProducts().forEach(product ->
@@ -77,8 +80,24 @@ public class TransferController {
         return transferInfo;
     }
 
+    @PostMapping("/kyiv")
+    public ResponseEntity<KyivProduct> addNewToKyiv(@RequestBody NewProduct newProduct) {
+        return ResponseEntity.ok(kyivService.add(KyivProduct.builder()
+                .productName(newProduct.getProductName())
+                .amount(newProduct.getAmount())
+                .build()));
+    }
+
+    @PostMapping("/lviv")
+    public ResponseEntity<LvivProduct> addNewToLviv(@RequestBody NewProduct newProduct) {
+        return ResponseEntity.ok(lvivService.add(LvivProduct.builder()
+                .productName(newProduct.getProductName())
+                .amount(newProduct.getAmount())
+                .build()));
+    }
+
     @GetMapping("/logs")
-    public List<Log> getLogs(){
+    public List<Log> getLogs() {
         return logService.GetAll();
     }
 }

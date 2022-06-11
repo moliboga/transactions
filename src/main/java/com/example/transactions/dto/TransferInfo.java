@@ -1,4 +1,4 @@
-package com.example.transactions.model;
+package com.example.transactions.dto;
 
 import com.example.transactions.model.product.KyivProduct;
 import lombok.Data;

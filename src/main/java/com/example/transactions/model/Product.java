@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.springframework.lang.NonNull;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -13,11 +14,17 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 @MappedSuperclass
-public abstract class BaseModel {
+public abstract class Product {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    private String productName;
+
+    @Column
+    @NonNull
+    private int amount;
 
     private Date createdAt;
     private Date updatedAt;

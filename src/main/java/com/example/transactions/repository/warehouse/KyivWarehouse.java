@@ -7,7 +7,5 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface KyivWarehouse extends JpaRepository<KyivProduct, String> {
-    Optional<KyivProduct> findByProductName(String productName);
-    Boolean existsByProductName(String productName);
+public interface KyivWarehouse extends WarehouseRepo<KyivProduct> {
 }
