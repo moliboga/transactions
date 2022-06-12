@@ -4,6 +4,7 @@ import com.example.transactions.model.Log;
 import com.example.transactions.repository.LogRepository;
 import org.springframework.stereotype.Service;
 
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
@@ -14,11 +15,12 @@ public class LogService {
         this.logRepository = logRepository;
     }
 
-    public void AddLog(Log log){
+    @Transactional
+    public void add(Log log){
         logRepository.save(log);
     }
 
-    public List<Log> GetAll(){
+    public List<Log> getAll(){
         return logRepository.findAll();
     }
 }

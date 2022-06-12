@@ -2,6 +2,7 @@ package com.example.transactions.service.warehouse;
 
 import com.example.transactions.model.Product;
 import com.example.transactions.repository.warehouse.WarehouseRepo;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -11,10 +12,6 @@ public class WarehouseService<U extends Product> {
 
     public WarehouseService(WarehouseRepo<U> warehouseRepo) {
         this.warehouseRepo = warehouseRepo;
-    }
-
-    public U add(U entity) {
-        return warehouseRepo.save(entity);
     }
 
     public List<U> getAll() {
@@ -27,18 +24,23 @@ public class WarehouseService<U extends Product> {
         return null;
     }
 
-    public void transfer(U details) {
+    @Transactional
+    public void transfer(U details){
         U product = getByProductName(details.getProductName());
         if (product != null) {
             int newAmount = product.getAmount() + details.getAmount();
             if (newAmount < 0) {
-                throw new IllegalArgumentException("There are not so many products in the warehouse");
+                throw new IllegalArgumentException("There are not so many "
+                        + product.getProductName() + " in the warehouse");
             }
             product.setAmount(newAmount);
         } else {
+            if (details.getAmount() < 0){
+                throw new IllegalArgumentException("There are not so many "
+                        + details.getProductName() + " in the warehouse");
+            }
             product = details;
         }
         warehouseRepo.save(product);
     }
-
 }

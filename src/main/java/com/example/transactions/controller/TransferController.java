@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Transactional
 @RestController
 @RequestMapping("/api/transfer")
 public class TransferController {
@@ -37,24 +38,6 @@ public class TransferController {
         return lvivService.getAll();
     }
 
-    @PutMapping("/kyiv")
-    public List<KyivProduct> transferToKyiv(@RequestBody List<NewProduct> instances) {
-        instances.forEach(newProduct -> kyivService.transfer(KyivProduct.builder()
-                .productName(newProduct.getProductName())
-                .amount(newProduct.getAmount())
-                .build()));
-        return kyivService.getAll();
-    }
-
-    @PutMapping("/lviv")
-    public List<LvivProduct> transferToLviv(@RequestBody List<NewProduct> instances) {
-        instances.forEach(newProduct -> lvivService.transfer(LvivProduct.builder()
-                .productName(newProduct.getProductName())
-                .amount(newProduct.getAmount())
-                .build()));
-        return lvivService.getAll();
-    }
-
     @Transactional
     void transfer(NewProduct newProduct, String fromStr, String toStr) {
 
@@ -72,7 +55,7 @@ public class TransferController {
             case "lviv" -> lvivService.transfer(lvivProduct);
             case "kyiv" -> kyivService.transfer(kyivProduct);
             case null, default ->
-                    throw new IllegalArgumentException("Wrong TO warehouse format");
+                    throw new IllegalArgumentException("Unexpected TO format:" + toStr);
         }
 
         if (fromStr == null) {
@@ -94,11 +77,10 @@ public class TransferController {
             kyivService.transfer(kyivProduct);
 
         } else {
-            throw new IllegalStateException("Unexpected value: " + fromStr);
+            throw new IllegalStateException("Unexpected FROM format: " + fromStr);
         }
 
-        logService.AddLog(Log
-                .builder()
+        logService.add(Log.builder()
                 .productName(newProduct.getProductName())
                 .amount(newProduct.getAmount())
                 .fromWarehouse(fromStr)
@@ -106,17 +88,21 @@ public class TransferController {
                 .build());
     }
 
-    @PutMapping()
+    @Transactional
+    void multiTransfer(List<NewProduct> products, String fromStr, String toStr){
+        products.forEach(newProduct -> transfer(newProduct, fromStr, toStr));
+    }
+
+    @PutMapping
     public TransferInfo transferFromLvivToKyiv(@RequestBody TransferInfo transferInfo) {
         String fromStr = transferInfo.getFrom();
         String toStr = transferInfo.getTo();
-        transferInfo.getProducts().forEach(product ->
-                transfer(product, fromStr, toStr));
+        multiTransfer(transferInfo.getProducts(), fromStr, toStr);
         return transferInfo;
     }
 
     @GetMapping("/logs")
     public List<Log> getLogs() {
-        return logService.GetAll();
+        return logService.getAll();
     }
 }
