@@ -58,27 +58,26 @@ public class TransferController {
                     throw new IllegalArgumentException("Unexpected TO format:" + toStr);
         }
 
-        if (fromStr == null) {
+        if (fromStr != null)
+            if ("lviv".equals(fromStr)) {
 
-        } else if ("lviv".equals(fromStr)) {
+                if (lvivService.getByProductName(newProduct.getProductName()) == null) {
+                    throw new IllegalArgumentException("No such product in the Lviv warehouse");
+                }
+                lvivProduct.setAmount(newProduct.getAmount() * -1);
+                lvivService.transfer(lvivProduct);
 
-            if (lvivService.getByProductName(newProduct.getProductName()) == null) {
-                throw new IllegalArgumentException("No such product in the Lviv warehouse");
+            } else if ("kyiv".equals(fromStr)) {
+
+                if (kyivService.getByProductName(newProduct.getProductName()) == null) {
+                    throw new IllegalArgumentException("No such product in the Kyiv warehouse");
+                }
+                kyivProduct.setAmount(newProduct.getAmount() * -1);
+                kyivService.transfer(kyivProduct);
+
+            } else {
+                throw new IllegalStateException("Unexpected FROM format: " + fromStr);
             }
-            lvivProduct.setAmount(newProduct.getAmount() * -1);
-            lvivService.transfer(lvivProduct);
-
-        } else if ("kyiv".equals(fromStr)) {
-
-            if (kyivService.getByProductName(newProduct.getProductName()) == null) {
-                throw new IllegalArgumentException("No such product in the Kyiv warehouse");
-            }
-            kyivProduct.setAmount(newProduct.getAmount() * -1);
-            kyivService.transfer(kyivProduct);
-
-        } else {
-            throw new IllegalStateException("Unexpected FROM format: " + fromStr);
-        }
 
         logService.add(Log.builder()
                 .productName(newProduct.getProductName())
@@ -93,6 +92,7 @@ public class TransferController {
         products.forEach(newProduct -> transfer(newProduct, fromStr, toStr));
     }
 
+    @Transactional
     @PutMapping
     public TransferInfo transferFromLvivToKyiv(@RequestBody TransferInfo transferInfo) {
         String fromStr = transferInfo.getFrom();
