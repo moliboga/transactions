@@ -2,7 +2,6 @@ package com.example.transactions.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.springframework.lang.NonNull;
@@ -11,6 +10,7 @@ import javax.persistence.*;
 import java.util.Date;
 
 @Data
+@SuperBuilder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity

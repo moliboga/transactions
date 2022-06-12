@@ -8,7 +8,7 @@ import com.example.transactions.model.product.LvivProduct;
 import com.example.transactions.service.LogService;
 import com.example.transactions.service.warehouse.KyivService;
 import com.example.transactions.service.warehouse.LvivService;
-import org.springframework.http.ResponseEntity;
+import com.example.transactions.service.warehouse.WarehouseService;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,62 +38,81 @@ public class TransferController {
     }
 
     @PutMapping("/kyiv")
-    public List<KyivProduct> transferToKyiv(@RequestBody List<KyivProduct> instances) {
-        instances.forEach(kyivService::transfer);
+    public List<KyivProduct> transferToKyiv(@RequestBody List<NewProduct> instances) {
+        instances.forEach(newProduct -> kyivService.transfer(KyivProduct.builder()
+                .productName(newProduct.getProductName())
+                .amount(newProduct.getAmount())
+                .build()));
         return kyivService.getAll();
     }
 
     @PutMapping("/lviv")
-    public List<LvivProduct> transferToLviv(@RequestBody List<LvivProduct> instances) {
-        instances.forEach(lvivService::transfer);
+    public List<LvivProduct> transferToLviv(@RequestBody List<NewProduct> instances) {
+        instances.forEach(newProduct -> lvivService.transfer(LvivProduct.builder()
+                .productName(newProduct.getProductName())
+                .amount(newProduct.getAmount())
+                .build()));
         return lvivService.getAll();
     }
 
     @Transactional
-    void transfer(KyivProduct kyivProduct, String fromStr, String toStr) {
-        kyivService.transfer(kyivProduct);
+    void transfer(NewProduct newProduct, String fromStr, String toStr) {
 
-        LvivProduct lvivProduct = new LvivProduct();
-        lvivProduct.setProductName(kyivProduct.getProductName());
-        lvivProduct.setAmount(-1 * kyivProduct.getAmount());
+        KyivProduct kyivProduct = KyivProduct.builder()
+                .productName(newProduct.getProductName())
+                .amount(newProduct.getAmount())
+                .build();
 
-        if (lvivService.getByProductName(lvivProduct.getProductName()) == null) {
-            throw new IllegalArgumentException("No such product in the Lviv warehouse");
+        LvivProduct lvivProduct = LvivProduct.builder()
+                .productName(newProduct.getProductName())
+                .amount(newProduct.getAmount())
+                .build();
+
+        switch (toStr) {
+            case "lviv" -> lvivService.transfer(lvivProduct);
+            case "kyiv" -> kyivService.transfer(kyivProduct);
+            case null, default ->
+                    throw new IllegalArgumentException("Wrong TO warehouse format");
         }
-        lvivService.transfer(lvivProduct);
 
-        Log log = new Log();
-        log.setAmount(kyivProduct.getAmount());
+        if (fromStr == null) {
 
-        log.setFromWarehouse(fromStr);
-        log.setToWarehouse(toStr);
-        log.setProductName(kyivProduct.getProductName());
-        logService.AddLog(log);
+        } else if ("lviv".equals(fromStr)) {
+
+            if (lvivService.getByProductName(newProduct.getProductName()) == null) {
+                throw new IllegalArgumentException("No such product in the Lviv warehouse");
+            }
+            lvivProduct.setAmount(newProduct.getAmount() * -1);
+            lvivService.transfer(lvivProduct);
+
+        } else if ("kyiv".equals(fromStr)) {
+
+            if (kyivService.getByProductName(newProduct.getProductName()) == null) {
+                throw new IllegalArgumentException("No such product in the Kyiv warehouse");
+            }
+            kyivProduct.setAmount(newProduct.getAmount() * -1);
+            kyivService.transfer(kyivProduct);
+
+        } else {
+            throw new IllegalStateException("Unexpected value: " + fromStr);
+        }
+
+        logService.AddLog(Log
+                .builder()
+                .productName(newProduct.getProductName())
+                .amount(newProduct.getAmount())
+                .fromWarehouse(fromStr)
+                .toWarehouse(toStr)
+                .build());
     }
 
     @PutMapping()
     public TransferInfo transferFromLvivToKyiv(@RequestBody TransferInfo transferInfo) {
-        String from = transferInfo.getFrom();
-        String to = transferInfo.getTo();
+        String fromStr = transferInfo.getFrom();
+        String toStr = transferInfo.getTo();
         transferInfo.getProducts().forEach(product ->
-                transfer(product, "", ""));
+                transfer(product, fromStr, toStr));
         return transferInfo;
-    }
-
-    @PostMapping("/kyiv")
-    public ResponseEntity<KyivProduct> addNewToKyiv(@RequestBody NewProduct newProduct) {
-        return ResponseEntity.ok(kyivService.add(KyivProduct.builder()
-                .productName(newProduct.getProductName())
-                .amount(newProduct.getAmount())
-                .build()));
-    }
-
-    @PostMapping("/lviv")
-    public ResponseEntity<LvivProduct> addNewToLviv(@RequestBody NewProduct newProduct) {
-        return ResponseEntity.ok(lvivService.add(LvivProduct.builder()
-                .productName(newProduct.getProductName())
-                .amount(newProduct.getAmount())
-                .build()));
     }
 
     @GetMapping("/logs")

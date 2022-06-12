@@ -1,6 +1,5 @@
 package com.example.transactions.dto;
 
-import com.example.transactions.model.product.KyivProduct;
 import lombok.Data;
 
 import java.util.List;
@@ -9,5 +8,5 @@ import java.util.List;
 public class TransferInfo {
     private String from;
     private String to;
-    private List<KyivProduct> products;
+    private List<NewProduct> products;
 }
