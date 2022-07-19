@@ -25,7 +25,7 @@ public class WarehouseService<U extends Product> {
     }
 
     @Transactional
-    public void transfer(U details){
+    public void transfer(U details) throws RuntimeException{
         U product = getByProductName(details.getProductName());
         if (product != null) {
             int newAmount = product.getAmount() + details.getAmount();

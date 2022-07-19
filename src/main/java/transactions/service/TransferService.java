@@ -2,13 +2,14 @@ package transactions.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import transactions.dto.NewProduct;
+import transactions.model.Log;
 import transactions.model.product.KyivProduct;
 import transactions.model.product.LvivProduct;
 import transactions.service.warehouse.KyivService;
 import transactions.service.warehouse.LvivService;
-import transactions.service.warehouse.WarehouseService;
 
 import java.util.List;
 
@@ -18,11 +19,17 @@ public class TransferService {
     @Autowired
     private TransferService transferService;
 
+    @Autowired
     private LvivService lvivService;
+
+    @Autowired
     private KyivService kyivService;
 
+    @Autowired
+    private LogService logService;
+
     @Transactional
-    void transfer(NewProduct newProduct, String fromStr, String toStr) {
+    void transfer(NewProduct newProduct, String fromStr, String toStr) throws RuntimeException {
 
         KyivProduct kyivProduct = KyivProduct.builder()
                 .productName(newProduct.getProductName())
@@ -62,15 +69,18 @@ public class TransferService {
                 throw new IllegalStateException("Unexpected FROM format: " + fromStr);
             }
 
-//        logService.add(Log.builder()
-//                .productName(newProduct.getProductName())
-//                .amount(newProduct.getAmount())
-//                .fromWarehouse(fromStr)
-//                .toWarehouse(toStr)
-//                .build());
+        logService.add(Log.builder()
+                .productName(newProduct.getProductName())
+                .amount(newProduct.getAmount())
+                .fromWarehouse(fromStr)
+                .toWarehouse(toStr)
+                .build());
     }
 
+    @Transactional
     public void multiTransfer(List<NewProduct> products, String fromStr, String toStr){
-        products.forEach(newProduct -> transferService.transfer(newProduct, fromStr, toStr));
+        for (NewProduct newProduct : products) {
+            transferService.transfer(newProduct, fromStr, toStr);
+        }
     }
 }
