@@ -1,6 +1,6 @@
-package com.example.transactions.model.product;
+package transactions.model.product;
 
-import com.example.transactions.model.Product;
+import transactions.model.Product;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -14,7 +14,6 @@ import javax.persistence.Table;
 @SuperBuilder(toBuilder = true)
 @NoArgsConstructor
 @Entity
-@Table(name = "lviv")
-public class LvivProduct extends Product {
+@Table(name = "kyiv")
+public class KyivProduct extends Product {
 }
-

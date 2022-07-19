@@ -1,4 +1,4 @@
-package com.example.transactions.dto;
+package transactions.dto;
 
 import lombok.Data;
 

@@ -1,10 +1,11 @@
-package com.example.transactions.service;
+package transactions.service;
 
-import com.example.transactions.model.Log;
-import com.example.transactions.repository.LogRepository;
+import transactions.model.Log;
+import transactions.repository.LogRepository;
 import org.springframework.stereotype.Service;
 
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 
 @Service

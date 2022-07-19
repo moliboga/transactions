@@ -1,7 +1,7 @@
-package com.example.transactions.service.warehouse;
+package transactions.service.warehouse;
 
-import com.example.transactions.model.Product;
-import com.example.transactions.repository.warehouse.WarehouseRepo;
+import transactions.model.Product;
+import transactions.repository.warehouse.WarehouseRepo;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;

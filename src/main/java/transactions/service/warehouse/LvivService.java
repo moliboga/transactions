@@ -1,7 +1,7 @@
-package com.example.transactions.service.warehouse;
+package transactions.service.warehouse;
 
-import com.example.transactions.model.product.LvivProduct;
-import com.example.transactions.repository.warehouse.WarehouseRepo;
+import transactions.model.product.LvivProduct;
+import transactions.repository.warehouse.WarehouseRepo;
 import org.springframework.stereotype.Service;
 
 @Service

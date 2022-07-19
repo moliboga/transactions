@@ -1,6 +1,6 @@
-package com.example.transactions.repository.warehouse;
+package transactions.repository.warehouse;
 
-import com.example.transactions.model.Product;
+import transactions.model.Product;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.NoRepositoryBean;
 

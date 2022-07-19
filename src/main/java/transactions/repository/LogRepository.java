@@ -1,6 +1,6 @@
-package com.example.transactions.repository;
+package transactions.repository;
 
-import com.example.transactions.model.Log;
+import transactions.model.Log;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
