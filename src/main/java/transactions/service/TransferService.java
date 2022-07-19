@@ -29,7 +29,7 @@ public class TransferService {
     private LogService logService;
 
     @Transactional
-    void transfer(NewProduct newProduct, String fromStr, String toStr) throws RuntimeException {
+    void transfer(NewProduct newProduct, String fromStr, String toStr){
 
         KyivProduct kyivProduct = KyivProduct.builder()
                 .productName(newProduct.getProductName())
@@ -77,7 +77,7 @@ public class TransferService {
                 .build());
     }
 
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void multiTransfer(List<NewProduct> products, String fromStr, String toStr){
         for (NewProduct newProduct : products) {
             transferService.transfer(newProduct, fromStr, toStr);
