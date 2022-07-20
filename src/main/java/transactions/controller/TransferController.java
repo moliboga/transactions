@@ -1,5 +1,6 @@
 package transactions.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import transactions.dto.TransferInfo;
@@ -7,6 +8,7 @@ import transactions.model.Log;
 import transactions.model.product.KyivProduct;
 import transactions.model.product.LvivProduct;
 import transactions.service.LogService;
+import transactions.service.Multitransfer;
 import transactions.service.TransferService;
 import transactions.service.warehouse.KyivService;
 import transactions.service.warehouse.LvivService;
@@ -17,13 +19,14 @@ import java.util.List;
 @RequestMapping("/api/transfer")
 public class TransferController {
 
-    private final TransferService transferService;
+    @Autowired
+    private Multitransfer multiTransfer;
+
     private final KyivService kyivService;
     private final LvivService lvivService;
     private final LogService logService;
 
-    public TransferController(TransferService transferService, KyivService kyivService, LvivService lvivService, LogService logService) {
-        this.transferService = transferService;
+    public TransferController(KyivService kyivService, LvivService lvivService, LogService logService) {
         this.kyivService = kyivService;
         this.lvivService = lvivService;
         this.logService = logService;
@@ -43,7 +46,7 @@ public class TransferController {
     public TransferInfo transferFromLvivToKyiv(@RequestBody TransferInfo transferInfo) {
         String fromStr = transferInfo.getFrom();
         String toStr = transferInfo.getTo();
-        transferService.multiTransfer(transferInfo.getProducts(), fromStr, toStr);
+        multiTransfer.multiTransfer(transferInfo.getProducts(), fromStr, toStr);
         return transferInfo;
     }
 
