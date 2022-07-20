@@ -2,7 +2,6 @@ package transactions.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import transactions.dto.NewProduct;
 import transactions.model.Log;
@@ -11,20 +10,13 @@ import transactions.model.product.LvivProduct;
 import transactions.service.warehouse.KyivService;
 import transactions.service.warehouse.LvivService;
 
-import java.util.List;
-
 @Service
 public class TransferService {
 
     @Autowired
-    private TransferService transferService;
-
-    @Autowired
     private LvivService lvivService;
-
     @Autowired
     private KyivService kyivService;
-
     @Autowired
     private LogService logService;
 
