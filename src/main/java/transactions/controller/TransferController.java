@@ -13,7 +13,6 @@ import transactions.service.warehouse.LvivService;
 
 import java.util.List;
 
-@Transactional
 @RestController
 @RequestMapping("/api/transfer")
 public class TransferController {

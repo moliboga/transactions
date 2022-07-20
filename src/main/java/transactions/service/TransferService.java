@@ -77,7 +77,7 @@ public class TransferService {
                 .build());
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     public void multiTransfer(List<NewProduct> products, String fromStr, String toStr){
         for (NewProduct newProduct : products) {
             transferService.transfer(newProduct, fromStr, toStr);
